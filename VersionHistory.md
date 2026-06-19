@@ -2,6 +2,19 @@
 
 All major updates and technical improvements for the OpenCV object recognition engine are documented below.
 
+## [1.4.0] - 2026-06-19
+### Added
+- **Dynamic UI Layout Configurator:** Decoupled the HUD rendering architecture into a flexible array (`UI_MENU_LAYOUT`), allowing international developers to reorder or modify screen components without rewriting core loops.
+- **Rolling Average Telemetry Buffer:** Implemented a stabilization window ($N=15$) to average raw processing metrics, delivering jitter-free, ultra-smooth **FPS** and **Latency** readouts.
+- **MAVLink Serial Stream Simulation:** Integrated mock live telemetry log overlays showcasing synchronized Altitude, Pitch, and Roll matrices powered by runtime trigonometric wave calculations.
+- **Advanced Filtering Switch:** Added hotkey support for runtime toggling between native Gaussian Blur and a localized **Median Blur Engine**.
+
+### Improved
+- **Lighting Stabilization Upgrade:** Replaced legacy global histogram equalization with **Contrast Limited Adaptive Histogram Equalization (CLAHE)** executed on the YUV luminance channel to eliminate over-exposure in variable outdoor field conditions.
+- **Code-Base Internationalization:** Comprehensively refactored all internal inline comments, operational tags, and mathematical descriptions entirely into standard technical English to foster open-source developer collaboration.
+
+---
+
 ## [1.3.3] - 2026-01-20
 ### Added
 - **Scientific Precision:** Integrated the circularity formula $4\pi \times \frac{\text{Area}}{\text{Perimeter}^2}$ for 100% precision in circle identification.
