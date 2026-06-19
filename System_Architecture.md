@@ -1,42 +1,42 @@
-# 🏛️ System Architecture - OpenCV Detector
+# 🏛️ System Architecture - OpenCV Detector v1.4.0
 
-This document outlines the core logic and processing pipeline of the **OpenCV Detector 2026**. The architecture is designed for high-precision object recognition with a focus on modularity and environmental adaptation.
+This document outlines the core logic, architectural design, and frame-processing pipeline of the **OpenCV Detector v1.4.0**. The system is engineered for low-latency computer vision tasks, focusing on structural modularity, runtime adaptability, and stable telemetry reporting.
 
 ---
 
-### 1. Dependency Management
-The system features a **self-healing dependency check**. 
-* **Auto-Verification:** It verifies `OpenCV` and `NumPy` on startup.
-* **Auto-Recovery:** If libraries are missing, the system auto-installs them via subprocess and restarts to maintain environment integrity.
+### 1. Self-Healing Dependency Engine
+The system initializes with an automated environment verification sub-routine to guarantee cross-platform compatibility:
+* **Runtime Verification:** Checks for the presence of exact bindings for `OpenCV` (`cv2`) and `NumPy` at thread execution startup.
+* **Auto-Recovery Sequence:** If dependencies are broken or missing, the initialization sequence spawns an isolated subprocess to invoke `pip install`, followed by an instant binary reload (`os.execl`) to resume execution cleanly without user intervention.
 
-### 2. Modular Configuration Layer
-Global parameters (UI labels, feature toggles, camera specs) are decoupled into modular dictionaries. 
-* This architecture enables **"tuning without touching"** the core computer vision algorithms.
-* Facilitates rapid prototyping and easy customization for different hardware setups.
+### 2. Decoupled Configuration & Dynamic UI Engine
+Global parameters and control states are fully decoupled from the underlying processing algorithms, allowing **"tuning without touching"**:
+* **Dynamic UI Layout Configurator:** The HUD rendering sequence is controlled by a structured list array (`UI_MENU_LAYOUT`). Developers can manipulate, reorder, or completely swap menu items dynamically on the screen without modifying the execution loops or event listeners.
+* **State Mapping Matrix:** Key matrices handle hotkey intercept maps, checking active/inactive states for features like color reading, tracking boxes, or recording pipelines instantly.
 
-### 3. Vision & Processing Pipeline
-The detection engine follows a strictly ordered pipeline:
-1. **Acquisition:** High-speed real-time frame capture from `CAM_CONFIG` index.
-2. **Pre-Processing:** Converts to HSV color space and applies adaptive **Gaussian Blurring** to eliminate digital flicker and sensor jitter.
-3. **Lighting Stabilization:** Uses **Histogram Equalization** to maintain detection accuracy under variable outdoor lighting conditions.
-4. **Morphological Refinement:** Executes `OPEN/CLOSE` operations to eliminate pixel gaps and "ghosting" artifacts in low-quality streams.
+### 3. Computer Vision & Frame Processing Pipeline
+To eliminate environmental noise, sensor jitter, and illumination shifts, every captured frame undergoes a strictly synchronized, multi-tier pipeline:
 
-### 4. Scientific Object Recognition
-Advanced mathematical logic is used for precise shape identification:
-* **Contour Analysis:** Extracts structural outlines and filters by `min_area`.
-* **Polygon Approximation:** Implements the **Douglas-Peucker algorithm** for vertex mapping.
-* **Circularity Analysis:** Uses the mathematical roundness formula:  
-  $$4 \pi \times \frac{\text{Area}}{\text{Perimeter}^2}$$  
-  to verify circles regardless of pixel distortion.
-* **Target Tracking:** Dynamic Bounding Box logic (LOCKED) for real-time visual identification.
+1. **Acquisition:** Captures high-speed raw BGR matrix streams from the hardware index defined in `CAM_CONFIG`.
+2. **Lighting Stabilization (CLAHE):** Rather than standard histogram equalization, the system converts frames to the **YUV color space** and applies **Contrast Limited Adaptive Histogram Equalization (CLAHE)** to the luminance channel (Y). This prevents over-amplification of background noise and stabilizes tracking under volatile outdoor or field lighting conditions.
+3. **Color Space Isolation:** Converts stabilized frames into the **HSV (Hue, Saturation, Value) model** for highly resilient color profiling.
+4. **Adaptive Filtering (Noise Reduction):** Dynamically toggles between standard **Gaussian Blur** and an optional **Median Filter Engine** depending on the selected operational profile to isolate contours effectively.
+5. **Morphological Refinement:** Executes sequential mathematical morphology operations (`MORPH_OPEN` to eliminate isolated outlier pixels, followed by `MORPH_CLOSE` to bridge small holes inside objects) using custom structural kernels.
 
-### 5. Telemetry & UI
-The system renders a real-time **HUD (Heads-Up Display)** which includes:
-* Shape and Color labels.
-* Performance telemetry (FPS and Latency tracking).
-* Integrated crosshair color analysis.
+### 4. Mathematical Object Recognition & Geometry Analysis
+Advanced mathematical morphology rules are utilized for real-time spatial object tracking:
+* **Contour Extraction:** Extracts structural outlines from binary masks, safely filtering out background interference using a strict `min_area` pixel threshold.
+* **Polygon Approximation:** Implements the **Douglas-Peucker algorithm** ($\epsilon$-coefficient curve approximation) to map out geometric vertices and isolate triangles, rectangles, or complex polygons.
+* **Circularity Analysis:** Validates precise spherical properties regardless of perspective distortion or pixel stretching by processing the mathematical roundness equation:
+  $$Circularity = 4 \pi \times \frac{\text{Area}}{\text{Perimeter}^2}$$
+* **Dynamic Target Tracking:** When active, bounding boxes map coordinates to target boundaries, locking onto objects with high visual contrast.
+
+### 5. Smooth Telemetry Engine & HUD
+The Ground Control HUD splits telemetry feeds into an isolated, multi-threaded interface sidebar:
+* **Rolling Average Telemetry Buffer:** To prevent erratic telemetry jumps, real-time metrics pass through a rolling average filter engine ($N=15$). Frame performance data is calculated over the last 15 ticks, generating locked, ultra-smooth **FPS** and **Latency** readouts.
+* **MAVLink Serial Stream Simulation:** Simulates full downlink connectivity, displaying real-time data overlays for mock link state, Altitude, Pitch, and Roll matrices using live trigonometric wave generation.
 
 ---
 
 > [!CAUTION]
-> **Termination:** To shut down the application, press the key defined in `CAM_CONFIG` (Default: **"q"**). Closing the window manually or forcing a kill may lead to resource leaks (camera handle issues).
+> **Resource Management & Shutdown Sequence:** Always terminate execution by pressing the secure key mapped in `CAM_CONFIG` (Default: **"q"**). Forcing a hard terminal kill or destroying the canvas window manually bypasses camera resource de-allocation, which can lock the webcam peripheral interface or cause video encoding cache leaks.
