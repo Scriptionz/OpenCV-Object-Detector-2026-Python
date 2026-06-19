@@ -1,9 +1,10 @@
 # OpenCV-Detector-Package-2026-Python-
-Hi! Thanks for using ODP 26! This package contains camera detector with color detection, shape detection and more. Also i made a modular settings system at the script so its easy to configure! Enjoy!
-Detector.py contains all the script inside. If you find any bugs or you have any idea you can contact to me, Thanks!
+Hi! Thanks for using ODP 26! This package contains a camera detector with color detection, shape detection, and more. I also implemented a modular, dynamic UI menu layout system right inside the script, making it incredibly easy to configure and reorder! Enjoy!
 
-Latest Update: v1.3.3 - 20 January 2026 - 23:17 (+3)
+`Detector.py` contains the entire runtime script. If you find any bugs or have any feature ideas, feel free to open an issue or contact me. Thanks!
 
-Just download the py file for the system, others are txt or license so you dont need them.
+Latest Update: v1.4.0 - 19 June 2026
 
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/51e34363-9ef8-498b-870f-0840b884862e" />
+Just download the `.py` file to run the system; the others are just documentation or license files, so you don't strictly need them to execute the code.
+
+<img width="412" height="512" alt="image" src="https://github.com/user-attachments/assets/51e34363-9ef8-498b-870f-0840b884862e" />
